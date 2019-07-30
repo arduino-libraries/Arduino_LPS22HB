@@ -102,4 +102,8 @@ int LPS22HBClass::i2cWrite(uint8_t reg, uint8_t val)
   return 1;
 }
 
+#ifdef ARDUINO_ARDUINO_NANO33BLE
 LPS22HBClass BARO(Wire1);
+#else
+LPS22HBClass BARO(Wire);
+#endif
