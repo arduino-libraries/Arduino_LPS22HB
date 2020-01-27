@@ -57,8 +57,8 @@ float LPS22HBClass::readPressure(int units)
   // trigger one shot
   i2cWrite(LPS22HB_CTRL2_REG, 0x01);
 
-  // wait for completion
-  while ((i2cRead(LPS22HB_STATUS_REG) & 0x02) == 0) {
+  // wait for ONE_SHOT bit to be cleared by the hardware
+  while ((i2cRead(LPS22HB_CTRL2_REG) & 0x01) != 0) {
     yield();
   }
 
