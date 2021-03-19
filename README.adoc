@@ -1,7 +1,5 @@
 = LPS22HB Library for Arduino =
 
-image:https://github.com/arduino-libraries/Arduino_LPS22HB/workflows/Compile%20Examples/badge.svg["Compile Examples Status", link="https://github.com/arduino-libraries/Arduino_LPS22HB/actions?workflow=Compile+Examples"] image:https://github.com/arduino-libraries/Arduino_LPS22HB/workflows/Spell%20Check/badge.svg["Spell Check Status", link="https://github.com/arduino-libraries/Arduino_LPS22HB/actions?workflow=Spell+Check"]
-
 Allows you to read the pressure sensor of your Nano 33 BLE Sense.
 
 

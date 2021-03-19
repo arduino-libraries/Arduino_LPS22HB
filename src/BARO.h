@@ -38,6 +38,26 @@ public:
 
   float readPressure(int units = KILOPASCAL);
 
+  void softwareReset();
+  
+  void enableInterruptPin();
+  void disableInterruptPin();
+  void setOpenDrain();
+  void setPushPull();
+  void setActiveHigh();
+  void setActiveLow();
+
+  void setThreshold(uint16_t newThold);
+  void enableHighPressureInterrupt();
+  void disableHighPressureInterrupt();
+  void enableLowPressureInterrupt();
+  void disableLowPressureInterrupt();
+
+  bool interrupt();
+  bool pressureInterrupt();
+  bool HighPressureInterrupt();
+  bool LowPresureInterrupt();
+
 private:
   int i2cRead(uint8_t reg);
   int i2cWrite(uint8_t reg, uint8_t val);
