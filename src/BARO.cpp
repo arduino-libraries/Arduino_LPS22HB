@@ -66,7 +66,7 @@ float LPS22HBClass::readPressure(int units)
           (i2cRead(LPS22HB_PRESS_OUT_L_REG) << 8) | 
           (i2cRead(LPS22HB_PRESS_OUT_H_REG) << 16)) / 40960.0;
 
-  if (units == MILLIBAR) { // 1 kPa = 10 MILLIBAR
+  if (units == MILLIBAR) { // 1 kPa = 10 millibar
     return reading * 10;
   } else if (units == PSI) {  // 1 kPa = 0.145038 PSI
     return reading * 0.145038;
