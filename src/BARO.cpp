@@ -29,6 +29,8 @@
 #define LPS22HB_PRESS_OUT_XL_REG    0x28
 #define LPS22HB_PRESS_OUT_L_REG     0x29
 #define LPS22HB_PRESS_OUT_H_REG     0x2a
+#define LPS22HB_TEMP_OUT_L_REG      0x2b
+#define LPS22HB_TEMP_OUT_H_REG      0x2c
 
 LPS22HBClass::LPS22HBClass(TwoWire& wire) :
   _wire(&wire)
@@ -73,6 +75,14 @@ float LPS22HBClass::readPressure(int units)
   } else {
     return reading;
   }
+}
+
+float LPS22HBClass::readTemperature(void)
+{
+  float reading = (i2cRead(LPS22HB_TEMP_OUT_L_REG) << 0) | 
+          (i2cRead(LPS22HB_TEMP_OUT_H_REG) << 8);
+
+  return reading/100;
 }
 
 int LPS22HBClass::i2cRead(uint8_t reg)
