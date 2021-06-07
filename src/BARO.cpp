@@ -30,6 +30,14 @@
 #define LPS22HB_PRESS_OUT_L_REG     0x29
 #define LPS22HB_PRESS_OUT_H_REG     0x2a
 
+// Interrupts
+#define LPS22HN_CTRL3_REG             0x12      // [INT H/L] [Push-pull / open-dra] [F_FSS5] [F_FTH] [F_OVR] [DRDY] [INT_S1] [INT_S0]
+#define LPS22HB_INTERRUPT_CFG_REG     0x0b    //  b3 Int-generation-enable b1 Int-Low-press b0 INT-high-press
+#define LPS22HB_INTERRUPT_THOLD_L_REG 0x0C
+#define LPS22HB_INTERRUPT_THOLD_H_REG 0x0D
+#define LPS22HB_INTERRUPT_SOURCE_REG  0x25    // [Boot_Status] -- [Interrupt active][Int low][Int high]
+
+
 LPS22HBClass::LPS22HBClass(TwoWire& wire) :
   _wire(&wire)
 {
@@ -43,7 +51,7 @@ int LPS22HBClass::begin()
     end();
     return 0;
   }
-
+  softwareReset();
   return 1;
 }
 
@@ -57,8 +65,8 @@ float LPS22HBClass::readPressure(int units)
   // trigger one shot
   i2cWrite(LPS22HB_CTRL2_REG, 0x01);
 
-  // wait for ONE_SHOT bit to be cleared by the hardware
-  while ((i2cRead(LPS22HB_CTRL2_REG) & 0x01) != 0) {
+  // wait for completion
+  while ((i2cRead(LPS22HB_STATUS_REG) & 0x02) == 0) {
     yield();
   }
 
@@ -73,6 +81,111 @@ float LPS22HBClass::readPressure(int units)
   } else {
     return reading;
   }
+}
+
+void LPS22HBClass::setOpenDrain()
+{
+  uint8_t ctrl3_reg = (i2cRead(LPS22HN_CTRL3_REG) & 0b10111111) | 0b1 << 6;  
+  i2cWrite(LPS22HN_CTRL3_REG, ctrl3_reg);
+}
+
+void LPS22HBClass::setPushPull()
+{
+  uint8_t ctrl3_reg = i2cRead(LPS22HN_CTRL3_REG) & 0b10111111;  
+  i2cWrite(LPS22HN_CTRL3_REG, ctrl3_reg);
+}
+
+void LPS22HBClass::setActiveHigh()
+{
+  uint8_t ctrl3_reg = i2cRead(LPS22HN_CTRL3_REG) & 0b1111111 ;  
+  i2cWrite(LPS22HN_CTRL3_REG, ctrl3_reg);
+}
+
+void LPS22HBClass::setActiveLow()
+{
+  uint8_t ctrl3_reg = (i2cRead(LPS22HN_CTRL3_REG) & 0b1111111) | 0b1 << 7;  
+  i2cWrite(LPS22HN_CTRL3_REG, ctrl3_reg);
+}
+
+void LPS22HBClass::enableInterruptPin()
+{
+  uint8_t interrupt_cfg = (i2cRead(LPS22HB_INTERRUPT_CFG_REG) & 0b11110111) | 0b1 <<3;  // Enable DIFF_EN
+  i2cWrite(LPS22HB_INTERRUPT_CFG_REG, interrupt_cfg);
+  uint8_t INT_DRDY_reg = (i2cRead(0x12)  & 0b1111110) | 0b1;   // INT_S
+  i2cWrite(0x12, INT_DRDY_reg);
+  Serial.println(interrupt_cfg);
+}
+
+void LPS22HBClass::disableInterruptPin()
+{
+  uint8_t interrupt_cfg = (i2cRead(LPS22HB_INTERRUPT_CFG_REG) & 0b11110111);  // Enable DIFF_EN
+  i2cWrite(LPS22HB_INTERRUPT_CFG_REG, interrupt_cfg);
+  uint8_t INT_DRDY_reg = (i2cRead(0x12)  & 0b1111101);  // INT_S
+  i2cWrite(0x12, INT_DRDY_reg);
+}
+
+void LPS22HBClass::setThreshold(uint16_t newThold)
+{
+  i2cWrite(LPS22HB_INTERRUPT_THOLD_L_REG , uint8_t(newThold));
+  i2cWrite(LPS22HB_INTERRUPT_THOLD_H_REG , uint8_t(newThold>>8));
+}
+
+void LPS22HBClass::enableHighPressureInterrupt()
+{
+  uint8_t interrupt_cfg = (i2cRead(0x0b) & 0b1111110) | 0b1;  // Enable PHE
+  i2cWrite(0x0b, interrupt_cfg);
+}
+
+void LPS22HBClass::disableHighPressureInterrupt()
+{
+  uint8_t interrupt_cfg = (i2cRead(0x0b) & 0b1111110);  // Disable PHE
+  uint8_t INT_DRDY_reg = (i2cRead(0x12)  & 0b1111110);   // INT_S
+  i2cWrite(0x0b, interrupt_cfg);
+  i2cWrite(0x12, INT_DRDY_reg);
+}
+
+void LPS22HBClass::enableLowPressureInterrupt()
+{
+  uint8_t interrupt_cfg = (i2cRead(0x0b) & 0b1111101) | 0b1 <1;  // Enable PLE
+  uint8_t INT_DRDY_reg = (i2cRead(0x12)  & 0b1111101) | 0b1 <1;  // INT_S
+  i2cWrite(0x0b, interrupt_cfg);
+  i2cWrite(0x12, INT_DRDY_reg);
+}
+
+void LPS22HBClass::disableLowPressureInterrupt()
+{
+  uint8_t interrupt_cfg = (i2cRead(0x0b) & 0b1111101);  // Disable PLE
+  i2cWrite(0x0b, interrupt_cfg);
+}
+
+bool LPS22HBClass::interrupt()
+{
+  return i2cRead(LPS22HB_INTERRUPT_SOURCE_REG) & 0b1 << 2;
+}
+
+bool LPS22HBClass::pressureInterrupt()
+{
+  uint8_t reg = i2cRead(LPS22HB_INTERRUPT_SOURCE_REG);
+  return (reg & 0b1<0) | (reg & 0b1<1) ;
+}
+
+bool LPS22HBClass::HighPressureInterrupt()
+{
+  return i2cRead(LPS22HB_INTERRUPT_SOURCE_REG) & 0b1 << 0;
+}
+
+bool LPS22HBClass::LowPresureInterrupt()
+{
+  return i2cRead(LPS22HB_INTERRUPT_SOURCE_REG) & 0b1 << 1;
+}
+
+void LPS22HBClass::softwareReset()
+{
+  i2cWrite(LPS22HB_CTRL2_REG, 0b100);
+
+  while(i2cRead(LPS22HB_CTRL2_REG) & 0b1 << 2){
+    delay(10);
+  }  
 }
 
 int LPS22HBClass::i2cRead(uint8_t reg)

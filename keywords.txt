@@ -17,6 +17,24 @@ end	KEYWORD2
 
 readPressure	KEYWORD2
 
+enableInterruptPin  KEYWORD2
+disableInterruptPin KEYWORD2
+setOpenDrain    KEYWORD2
+setPushPull KEYWORD2
+setActiveHigh   KEYWORD2
+setActiveLow    KEYWORD2
+
+setThreshold    KEYWORD2
+enableHighPressureInterrupt KEYWORD2
+disableHighPressureInterrupt    KEYWORD2
+enableLowPressureInterrupt  KEYWORD2
+disableLowPressureInterrupt KEYWORD2
+
+interrupt   KEYWORD2
+pressureInterrupt   KEYWORD2
+HighPressureInterrupt   KEYWORD2
+LowPresureInterrupt KEYWORD2
+
 #######################################
 # Constants
 #######################################
