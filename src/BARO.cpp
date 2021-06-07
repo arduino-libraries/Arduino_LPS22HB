@@ -121,7 +121,7 @@ void LPS22HBClass::disableInterruptPin()
   uint8_t interrupt_cfg = (i2cRead(LPS22HB_INTERRUPT_CFG_REG) & 0b11110111);  // Enable DIFF_EN
   i2cWrite(LPS22HB_INTERRUPT_CFG_REG, interrupt_cfg);
   uint8_t INT_DRDY_reg = (i2cRead(0x12)  & 0b1111101);  // INT_S
-   i2cWrite(0x12, INT_DRDY_reg);
+  i2cWrite(0x12, INT_DRDY_reg);
 }
 
 void LPS22HBClass::setThreshold(uint16_t newThold)
