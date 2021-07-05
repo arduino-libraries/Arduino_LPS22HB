@@ -31,7 +31,8 @@
 #define LPS22HB_PRESS_OUT_H_REG     0x2a
 
 LPS22HBClass::LPS22HBClass(TwoWire& wire) :
-  _wire(&wire)
+  _wire(&wire),
+  _initialized(false)
 {
 }
 
@@ -44,35 +45,40 @@ int LPS22HBClass::begin()
     return 0;
   }
 
+  _initialized = true;
   return 1;
 }
 
 void LPS22HBClass::end()
 {
   _wire->end();
+  _initialized = false;
 }
 
 float LPS22HBClass::readPressure(int units)
 {
-  // trigger one shot
-  i2cWrite(LPS22HB_CTRL2_REG, 0x01);
+  if (_initialized == true) {
+    // trigger one shot
+    i2cWrite(LPS22HB_CTRL2_REG, 0x01);
 
-  // wait for ONE_SHOT bit to be cleared by the hardware
-  while ((i2cRead(LPS22HB_CTRL2_REG) & 0x01) != 0) {
-    yield();
+    // wait for ONE_SHOT bit to be cleared by the hardware
+    while ((i2cRead(LPS22HB_CTRL2_REG) & 0x01) != 0) {
+      yield();
+    }
+
+    float reading = (i2cRead(LPS22HB_PRESS_OUT_XL_REG) |
+            (i2cRead(LPS22HB_PRESS_OUT_L_REG) << 8) |
+            (i2cRead(LPS22HB_PRESS_OUT_H_REG) << 16)) / 40960.0;
+
+    if (units == MILLIBAR) { // 1 kPa = 10 millibar
+      return reading * 10;
+    } else if (units == PSI) {  // 1 kPa = 0.145038 PSI
+      return reading * 0.145038;
+    } else {
+      return reading;
+    }
   }
-
-  float reading = (i2cRead(LPS22HB_PRESS_OUT_XL_REG) |
-          (i2cRead(LPS22HB_PRESS_OUT_L_REG) << 8) | 
-          (i2cRead(LPS22HB_PRESS_OUT_H_REG) << 16)) / 40960.0;
-
-  if (units == MILLIBAR) { // 1 kPa = 10 millibar
-    return reading * 10;
-  } else if (units == PSI) {  // 1 kPa = 0.145038 PSI
-    return reading * 0.145038;
-  } else {
-    return reading;
-  }
+  return 0;
 }
 
 int LPS22HBClass::i2cRead(uint8_t reg)
