@@ -32,7 +32,7 @@ if (!BARO.begin()) {
 #### See also
 
 * [end()](#end)
-* [readPressure()](#readPressure)
+* [readPressure()](#readpressure)
 
 ### `end()`
 
@@ -68,7 +68,7 @@ BARO.end();
 #### See also
 
 * [begin()](#begin)
-* [readPressure()](#readPressure)
+* [readPressure()](#readpressure)
 
 ### `readPressure()`
 
