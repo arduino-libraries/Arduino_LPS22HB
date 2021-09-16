@@ -1,7 +1,7 @@
 # ArduinoLPS22HB library
 
 
-The ArduinoLPS22HB library allows you to use the LPS22HB sensor available on the Arduino&reg; Nano 33 BLE Sense board to read the air pressure.
+The ArduinoLPS22HB library allows you to use the [LPS22HB](https://www.st.com/resource/en/datasheet/lps22hb.pdf) sensor available on the Arduino&reg; Nano 33 BLE Sense board to read the air pressure.
 
 To use this library:
 
