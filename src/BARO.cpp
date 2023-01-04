@@ -93,6 +93,18 @@ float LPS22HBClass::readTemperature(void)
   return reading/100;
 }
 
+#define PRESSURE_SEALEVEL_HPA  (1013.25f) /**< Average sea level pressure is 1013.25 hPa */
+float LPS22HBClass::readAltitude(void)
+{
+  float atmospheric = BARO.readPressure(MILLIBAR);
+  /*
+   * The altitude in meters can be calculated
+   * with the international barometric formula
+   */
+  return 44330.0 *
+    (1.0 - pow(atmospheric/PRESSURE_SEALEVEL_HPA, (1.0/5.255)));
+}
+
 int LPS22HBClass::i2cRead(uint8_t reg)
 {
   _wire->beginTransmission(LPS22HB_ADDRESS);

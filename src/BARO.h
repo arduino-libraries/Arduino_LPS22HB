@@ -38,7 +38,7 @@ public:
 
   float readPressure(int units = KILOPASCAL);
   float readTemperature(void);
-
+  float readAltitude(void);
 private:
   int i2cRead(uint8_t reg);
   int i2cWrite(uint8_t reg, uint8_t val);

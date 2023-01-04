@@ -42,6 +42,16 @@ void loop() {
   // print an empty line
   Serial.println();
 
+  // read the sensor value
+  float altitude = BARO.readAltitude();
+  // print the sensor value
+  Serial.print("Altitude = ");
+  Serial.print(altitude);
+  Serial.println(" m");
+
+  // print an empty line
+  Serial.println();
+
   // wait 1 second to print again
   delay(1000);
 }
