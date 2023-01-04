@@ -24,6 +24,7 @@
 #define LPS22HB_ADDRESS  0x5C
 
 #define LPS22HB_WHO_AM_I_REG        0x0f
+#define LPS22HB_CTRL1_REG           0x10
 #define LPS22HB_CTRL2_REG           0x11
 #define LPS22HB_STATUS_REG          0x27
 #define LPS22HB_PRESS_OUT_XL_REG    0x28
@@ -34,7 +35,8 @@
 
 LPS22HBClass::LPS22HBClass(TwoWire& wire) :
   _wire(&wire),
-  _initialized(false)
+  _initialized(false),
+  _rate(RATE_ONE_SHOT)
 {
 }
 
@@ -59,15 +61,23 @@ void LPS22HBClass::end()
   _initialized = false;
 }
 
+void LPS22HBClass::setOutputRate(int rate)
+{
+  _rate = rate;
+  i2cWrite(LPS22HB_CTRL1_REG, (_rate & 0x07) << 4);
+}
+
 float LPS22HBClass::readPressure(int units)
 {
   if (_initialized == true) {
-    // trigger one shot
-    i2cWrite(LPS22HB_CTRL2_REG, 0x01);
+    if (_rate == RATE_ONE_SHOT) {
+      // trigger one shot
+      i2cWrite(LPS22HB_CTRL2_REG, 0x01);
 
-    // wait for ONE_SHOT bit to be cleared by the hardware
-    while ((i2cRead(LPS22HB_CTRL2_REG) & 0x01) != 0) {
-      yield();
+      // wait for ONE_SHOT bit to be cleared by the hardware
+      while ((i2cRead(LPS22HB_CTRL2_REG) & 0x01) != 0) {
+        yield();
+      }
     }
 
     float reading = (i2cRead(LPS22HB_PRESS_OUT_XL_REG) |
