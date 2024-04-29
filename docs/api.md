@@ -84,7 +84,7 @@ BARO.readPressure(units)
 
 #### Parameters
 
-* _units_: `PSI`  to read the pressure in PSI (pounds per square inch), `MILLIBAR` to read the pressure in millibars and `KILOPASCALS` to read the pressure in kilopascals. If unit parameter is not provided, default is kilopascals   .
+* _units_: `PSI`  to read the pressure in PSI (pounds per square inch), `MILLIBAR` to read the pressure in millibars and `KILOPASCAL` to read the pressure in kilopascals. If unit parameter is not provided, default is kilopascals   .
 
 #### Returns
 
