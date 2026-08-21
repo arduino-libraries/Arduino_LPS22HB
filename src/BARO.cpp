@@ -87,7 +87,7 @@ float LPS22HBClass::readPressure(int units)
     if (units == MILLIBAR) { // 1 kPa = 10 millibar
       return reading * 10;
     } else if (units == PSI) {  // 1 kPa = 0.145038 PSI
-      return reading * 0.145038;
+      return reading * 0.145038f;
     } else {
       return reading;
     }
